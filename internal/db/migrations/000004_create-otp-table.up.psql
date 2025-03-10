@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS otps(
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id) NOT NULL,
+    otp VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ,
+    deleted_at TIMESTAMPTZ
+);

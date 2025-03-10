@@ -1,0 +1,29 @@
+CREATE TABLE IF NOT EXISTS tabs (
+    id uuid PRIMARY KEY, 
+    user_id uuid REFERENCES users(id) NOT NULL,
+    tab_number INT NOT NULL,  -- Incremental tab number per user
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
+);
+
+-- Ensure tab numbers increment per user
+CREATE OR REPLACE FUNCTION increment_tab_number() 
+RETURNS TRIGGER AS $$
+DECLARE 
+    last_tab_number INT;
+BEGIN
+    -- Get the last tab number for this user
+    SELECT COALESCE(MAX(tab_number), 0) INTO last_tab_number 
+    FROM tabs WHERE user_id = NEW.user_id;
+    
+    -- Set the next tab number
+    NEW.tab_number := last_tab_number + 1;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Attach the trigger to the tabs table
+CREATE TRIGGER tab_number_trigger
+BEFORE INSERT ON tabs
+FOR EACH ROW EXECUTE FUNCTION increment_tab_number();

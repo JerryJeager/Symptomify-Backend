@@ -34,6 +34,10 @@ type VerifyUserReq struct {
 	Email string `json:'email' binding:"required"`
 	Otp   string `json:"otp" binding:"required"`
 }
+type LoginReq struct {
+	Email string `json:'email' binding:"required"`
+	Password   string `json:"password" binding:"required"`
+}
 
 func (user *User) HashPassword() error {
 	user.Password = html.EscapeString(strings.TrimSpace(user.Password))

@@ -16,6 +16,8 @@ import (
 type UserSv interface {
 	CreateUser(ctx context.Context, user *User) error
 	VerifyUser(ctx context.Context, verifyUserReq *VerifyUserReq) error
+	Login(ctx context.Context, loginReq *LoginReq) (string, error)
+	GetUser(ctx context.Context, userID uuid.UUID) (*User, error)
 }
 
 type UserServ struct {
@@ -77,6 +79,31 @@ func (s *UserServ) VerifyUser(ctx context.Context, verifyUserReq *VerifyUserReq)
 		return err
 	}
 	return nil
+}
+
+func (s *UserServ) Login(ctx context.Context, loginReq *LoginReq) (string, error) {
+	user, err := s.repo.GetUserByEmail(ctx, loginReq.Email)
+	if err != nil{
+		return "", errors.New("no account is registered with this email address")
+	}
+	if !user.IsVerified {
+		return "", errors.New("only verified users can login")
+	}
+
+	if err := VerifyPassword(loginReq.Password, user.Password); err != nil{
+		return "", errors.New("invalid email or password")
+	}
+
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil{
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (s *UserServ) GetUser(ctx context.Context, userID uuid.UUID)(*User, error ){
+	return s.repo.GetUser(ctx, userID)
 }
 
 func sendCreateUserEmail(user *User, otp string) error {

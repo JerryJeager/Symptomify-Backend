@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"errors"
 
 	"github.com/JerryJeager/Symptomify-Backend/utils"
 	"github.com/JerryJeager/Symptomify-Backend/utils/emails"
@@ -14,6 +15,7 @@ import (
 
 type UserSv interface {
 	CreateUser(ctx context.Context, user *User) error
+	VerifyUser(ctx context.Context, verifyUserReq *VerifyUserReq) error
 }
 
 type UserServ struct {
@@ -48,6 +50,32 @@ func (s *UserServ) CreateUser(ctx context.Context, user *User) error {
 		log.Print(err)
 	}
 
+	return nil
+}
+
+
+func (s *UserServ) VerifyUser(ctx context.Context, verifyUserReq *VerifyUserReq) error {
+	user, err := s.repo.GetUserByEmail(ctx, verifyUserReq.Email)
+	if err != nil{
+		return errors.New("no account is registered with this email address")
+	}
+
+	otp, err := s.repo.GetUserOtp(ctx, user.ID)
+	if err != nil{
+		return err
+	}
+
+	if otp.Otp != verifyUserReq.Otp {
+		return errors.New("wrong otp code used")
+	}
+
+	if otp.ExpiresAt.Compare(otp.CreatedAt) == -1 {
+		return errors.New("expired otp code")
+	}
+
+	if err := s.repo.VerifyUser(ctx, user.ID); err != nil{
+		return err
+	}
 	return nil
 }
 

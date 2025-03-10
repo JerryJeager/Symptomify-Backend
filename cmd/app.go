@@ -26,6 +26,7 @@ func ExecuteApiRoutes() {
 	users := api.Group("/users")
 
 	users.POST("/signup", userController.CreateUser)
+	users.POST("/verify", userController.VerifyUser)
 
 	port := os.Getenv("PORT")
 	if port == "" {

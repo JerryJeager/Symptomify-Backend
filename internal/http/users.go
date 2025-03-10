@@ -28,4 +28,23 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, GetErrorJson(err, ""))
 		return
 	}
+
+	ctx.Status(http.StatusOK)
+}
+
+func (c *UserController) VerifyUser(ctx *gin.Context) {
+	var verifyUserReq users.VerifyUserReq 
+	if err := ctx.ShouldBindJSON(&verifyUserReq); err != nil{
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "missing required fields",
+		})
+		return 
+	}
+
+	if err := c.serv.VerifyUser(ctx, &verifyUserReq); err != nil{
+		ctx.JSON(http.StatusBadRequest, GetErrorJson(err, ""))
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }

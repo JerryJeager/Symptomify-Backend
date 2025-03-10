@@ -30,6 +30,11 @@ type Otp struct {
 	DeletedAt time.Time `json:"deleted_at"`
 }
 
+type VerifyUserReq struct {
+	Email string `json:'email' binding:"required"`
+	Otp   string `json:"otp" binding:"required"`
+}
+
 func (user *User) HashPassword() error {
 	user.Password = html.EscapeString(strings.TrimSpace(user.Password))
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -48,3 +53,5 @@ func VerifyPassword(password, hashedPassword string) error {
 	password = html.EscapeString(strings.TrimSpace(password))
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
+
+

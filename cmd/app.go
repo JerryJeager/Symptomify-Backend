@@ -3,8 +3,9 @@ package cmd
 import (
 	"log"
 	"os"
-	
+
 	"github.com/JerryJeager/Symptomify-Backend/middleware"
+	"github.com/JerryJeager/Symptomify-Backend/manualwire"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,7 +20,12 @@ func ExecuteApiRoutes() {
 		})
 	})
 
-	
+	userController := manualwire.GetUserController()
+
+	api := router.Group("/api/v1")
+	users := api.Group("/users")
+
+	users.POST("/signup", userController.CreateUser)
 
 	port := os.Getenv("PORT")
 	if port == "" {

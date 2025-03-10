@@ -1,31 +1,22 @@
-package middleware
+package manualwire
 
 import (
-	"fmt"
-	"net/http"
-
-	auth "github.com/JerryJeager/Symptomify-Backend/internal/http"
-
-	"github.com/gin-gonic/gin"
+	"github.com/JerryJeager/Symptomify-Backend/config"
+	"github.com/JerryJeager/Symptomify-Backend/internal/http"
+	"github.com/JerryJeager/Symptomify-Backend/internal/service/users"
 )
 
-func JwtAuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func GetUserRepository() *users.UserRepo {
+	repo := config.GetSession()
+	return users.NewUserRepo(repo)
+}
 
-		id,  err := auth.ValidateToken(c)
+func GetUserService(repo users.UserStore) *users.UserServ {
+	return users.NewUserService(repo)
+}
 
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"status":     "Bad request",
-				"message":    "Authentication failed",
-				"statusCode": http.StatusUnauthorized,
-			})
-			fmt.Println(err)
-			c.Abort()
-			return
-		}
-		c.Set("user_id", id)
-
-		c.Next()
-	}
+func GetUserController() *http.UserController {
+	repo := GetUserRepository()
+	service := GetUserService(repo)
+	return http.NewUserController(service)
 }

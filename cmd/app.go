@@ -22,10 +22,12 @@ func ExecuteApiRoutes() {
 
 	userController := manualwire.GetUserController()
 	tabController := manualwire.GetTabController()
+	chatController := manualwire.GetChatController()
 
 	api := router.Group("/api/v1")
 	users := api.Group("/users")
-	tabs := api.Group("tabs")
+	tabs := api.Group("/tabs")
+	chats := api.Group("/chats")
 
 	users.POST("/signup", userController.CreateUser)
 	users.POST("/verify", userController.VerifyUser)
@@ -35,6 +37,11 @@ func ExecuteApiRoutes() {
 	tabs.POST("", middleware.JwtAuthMiddleware(), tabController.CreateTab)
 	tabs.GET("", middleware.JwtAuthMiddleware(), tabController.GetTabs)
 	tabs.DELETE("/:tab_id", middleware.JwtAuthMiddleware(), tabController.DeleteTab)
+
+
+	chats.POST("/:tab_id", middleware.JwtAuthMiddleware(), chatController.CreateChat)
+	chats.GET("/:tab_id", middleware.JwtAuthMiddleware(), chatController.GetChatByTabID)
+	chats.DELETE("/:chat_id", middleware.JwtAuthMiddleware(), chatController.DeleteChat)
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -3,8 +3,9 @@ package manualwire
 import (
 	"github.com/JerryJeager/Symptomify-Backend/config"
 	"github.com/JerryJeager/Symptomify-Backend/internal/http"
-	"github.com/JerryJeager/Symptomify-Backend/internal/service/users"
+	"github.com/JerryJeager/Symptomify-Backend/internal/service/chats"
 	"github.com/JerryJeager/Symptomify-Backend/internal/service/tabs"
+	"github.com/JerryJeager/Symptomify-Backend/internal/service/users"
 )
 
 func GetUserRepository() *users.UserRepo {
@@ -22,7 +23,6 @@ func GetUserController() *http.UserController {
 	return http.NewUserController(service)
 }
 
-
 func GetTabRepository() *tabs.TabRepo {
 	repo := config.GetSession()
 	return tabs.NewTabRepo(repo)
@@ -38,3 +38,17 @@ func GetTabController() *http.TabController {
 	return http.NewTabController(service)
 }
 
+func GetChatRepository() *chats.ChatRepo {
+	repo := config.GetSession()
+	return chats.NewChatRepo(repo)
+}
+
+func GetChatService(repo chats.ChatStore) *chats.ChatServ {
+	return chats.NewChatService(repo)
+}
+
+func GetChatController() *http.ChatController {
+	repo := GetChatRepository()
+	service := GetChatService(repo)
+	return http.NewChatController(service)
+}

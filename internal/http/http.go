@@ -2,6 +2,10 @@ package http
 
 import "context"
 
+
+type TabIDPathParam struct {
+	TabID string `uri:"tab_id" binding:"required,uuid_rfc4122"`
+}
 type ErrorJson struct {
 	Message string `json:"message"`
 	Error   string `json:"error"`
